@@ -24,6 +24,7 @@ io.on('connection',(socket)=>{
     })
   // On your Server
 socket.on('coordinates', (data) => {
+    console.log('pen:',data);
     // We are now passing the whole object (x1, y1, x2, y2)
     // .to(data.room) ensures only people in that specific room see it
     socket.to(data.room).emit('coordinates', data);

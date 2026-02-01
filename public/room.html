@@ -6,11 +6,11 @@
 <body>
     <h1 id="heading">Welcome to Room </h1>
     <div class="colors" style="display: flex; justify-content: space-evenly;">
-        <input type="radio" onclick="colorChange('red')" name="red" style="width: 20px; height: 20px; border-radius:   10px; background-color: red; "></input>
-        <input type="radio" onclick="colorChange('yellow')" name="yellow" style="width: 20px; height: 20px; border-radius:   10px; background-color: yellow; "></input>
-        <input type="radio" onclick="colorChange('green')" name="green" style="width: 20px; height: 20px; border-radius:   10px; background-color: green; "></input>
-        <input type="radio" onclick="colorChange('blue')"name="blue" style="width: 20px; height: 20px; border-radius:   10px; background-color: blue; "></input>
-        <input type="radio" onclick="colorChange('black')" name="black" style="width: 20px; height: 20px; border-radius:   10px; background-color: black; "></input>
+        <input type="button" onclick="colorChange('red')" name="red" style="width: 20px; height: 20px; border-radius:   10px; background-color: red; "></input>
+        <input type="button" onclick="colorChange('yellow')" name="yellow" style="width: 20px; height: 20px; border-radius:   10px; background-color: yellow; "></input>
+        <input type="button" onclick="colorChange('green')" name="green" style="width: 20px; height: 20px; border-radius:   10px; background-color: green; "></input>
+        <input type="button" onclick="colorChange('blue')"name="blue" style="width: 20px; height: 20px; border-radius:   10px; background-color: blue; "></input>
+        <input type="button" onclick="colorChange('black')" name="black" style="width: 20px; height: 20px; border-radius:   10px; background-color: black; "></input>
     </div>
     <canvas id="whiteboard" width="800" height="500" style="border:2px solid black; background: white;"></canvas>
    <script src="/socket.io/socket.io.js"></script>
@@ -28,8 +28,10 @@
         // Configure the pen
          ctx.lineWidth = 2;
          ctx.lineCap = 'round'; // Makes lines smooth, not blocky
-         function colorChange(col){
-         ctx.strokeStyle = col;
+        let penColor='black';
+         function colorChange(color){
+           penColor=color;
+           ctx.strokeStyle = penColor;
          }
          socket.on('coordinates',(data)=>{
             console.log("data:",data); 
@@ -48,6 +50,7 @@
             ctx.stroke();
             ctx.beginPath();// Start a fresh path for the next point
             ctx.moveTo(data.x,data.y)
+            ctx.strokeStyle=data.penColor;
         })
         socket.on('stop-drawing',()=>{
             ctx.beginPath();
@@ -92,7 +95,7 @@
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.moveTo(x,y);
-                const payload={name:name,room:roomno,x,y}
+                const payload={name:name,room:roomno,x,y,penColor}
                 socket.emit('coordinates',payload)
             }
          }
