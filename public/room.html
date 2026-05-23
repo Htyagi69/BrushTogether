@@ -1,105 +1,286 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px 16px;
+            gap: 0;
+        }
+
+        /* ── PANEL WRAPPER ── */
+        .panel {
+            background: #0f1a0f;
+            border: 4px solid #33ff33;
+            box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 6px #33ff33, inset 0 0 0 2px #33ff33;
+            width: 100%;
+            max-width: 840px;
+            position: relative;
+        }
+
+        /* ── TITLE BAR ── */
+        .titlebar {
+            background: #33ff33;
+            color: #0a0a0a;
+            font-size: 9px;
+            padding: 8px 12px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .titlebar::before { content: "▶"; font-size: 9px; }
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        .blink {
+            display: inline-block;
+            width: 8px; height: 10px;
+            background: #0a0a0a;
+            animation: blink .7s steps(1) infinite;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-bottom: 2px dashed #1a4a1a;
+            background: #070f07;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-label {
+            font-size: 6px;
+            color: #1a7a1a;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-right: 4px;
+        }
+
+        .colors {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* color swatches — pixelated square style */
+        .colors input[type="button"] {
+            width: 20px;
+            height: 20px;
+            border-radius: 0 !important;
+            border: 2px solid #1a4a1a;
+            cursor: pointer;
+            outline: none;
+            image-rendering: pixelated;
+            transition: transform 0.05s, border-color 0.05s;
+            clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px));
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .colors input[type="button"]:hover {
+            border-color: #33ff33;
+            transform: scale(1.25);
+        }
+        .colors input[type="button"]:active {
+            transform: scale(0.9);
+        }
+
+        /* active color indicator */
+        #active-color-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #33ff33;
+            background: black;
+            clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px));
+        }
+
+        /* ── CANVAS ── */
+        .canvas-wrap {
+            padding: 12px;
+            background: #070f07;
+            position: relative;
+        }
+
+        #whiteboard {
+            display: block;
+            width: 100%;
+            max-width: 808px;
+            height: 500px;
+            background: #ffffff;
+            border: 3px solid #33ff33;
+            box-shadow: inset 0 0 0 1px #1a4a1a;
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+
+        /* scanline overlay on canvas */
+        .scanlines {
+            pointer-events: none;
+            position: absolute;
+            inset: 12px;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px, transparent 3px,
+                rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+            );
+        }
+
+        /* ── STATUS BAR ── */
+        .statusbar {
+            background: #070f07;
+            border-top: 2px dashed #1a4a1a;
+            padding: 6px 14px;
+            font-size: 6px;
+            color: #1a7a1a;
+            letter-spacing: 1px;
+            display: flex;
+            gap: 24px;
+        }
+        .statusbar span { color: #33ff33; }
+
+        /* panel scanlines overlay */
+        .panel-scanlines {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px, transparent 3px,
+                rgba(0,0,0,0.1) 3px, rgba(0,0,0,0.1) 4px
+            );
+            z-index: 10;
+        }
+    </style>
 </head>
 <body>
-    <h1 id="heading">Welcome to Room </h1>
-    <div class="colors" style="display: flex; justify-content: space-evenly;">
-        <input type="button" onclick="colorChange('red')" name="red" style="width: 20px; height: 20px; border-radius:   10px; background-color: red; "></input>
-        <input type="button" onclick="colorChange('yellow')" name="yellow" style="width: 20px; height: 20px; border-radius:   10px; background-color: yellow; "></input>
-        <input type="button" onclick="colorChange('green')" name="green" style="width: 20px; height: 20px; border-radius:   10px; background-color: green; "></input>
-        <input type="button" onclick="colorChange('blue')"name="blue" style="width: 20px; height: 20px; border-radius:   10px; background-color: blue; "></input>
-        <input type="button" onclick="colorChange('black')" name="black" style="width: 20px; height: 20px; border-radius:   10px; background-color: black; "></input>
+
+<div class="panel">
+    <div class="titlebar">
+        <h1 id="heading" style="font-size:9px;font-weight:normal;letter-spacing:1px;">Welcome to Room </h1>
+        <span class="blink"></span>
     </div>
-    <canvas id="whiteboard" width="800" height="500" style="border:2px solid black; background: white;"></canvas>
-   <script src="/socket.io/socket.io.js"></script>
-     <script>
-         const socket= io();
-         const urlparams=new URLSearchParams(window.location.search)
-         let head=document.getElementById('heading');
-         let roomno=urlparams.get('room');
-         let name=urlparams.get('name');
-         let email=urlparams.get('email');
-         head.innerText=`Welcome to Room ${roomno}`
 
-         let canvas=document.getElementById('whiteboard');
-         const ctx=canvas.getContext('2d');
-        // Configure the pen
-         ctx.lineWidth = 2;
-         ctx.lineCap = 'round'; // Makes lines smooth, not blocky
-        let penColor='black';
-         function colorChange(color){
-           penColor=color;
-           ctx.strokeStyle = penColor;
-         }
-         socket.on('coordinates',(data)=>{
-            console.log("data:",data); 
-            // let div=document.createElement('div');
-            // div.style.width='3px';
-            // div.style.height='3px';
-            // div.style.position = 'absolute';
-            // div.style.borderRadius='1.5px';
-            // div.style.backgroundColor='black';
-            // div.style.left=data.x+'px';
-            // div.style.top=data.y+'px';
-            // canvas.appendChild(div)
+    <div class="toolbar">
+        <span class="toolbar-label">PEN▸</span>
+        <div class="colors" style="justify-content: space-evenly;">
+            <input type="button" onclick="colorChange('red')"    name="red"    style="background-color:red;">
+            <input type="button" onclick="colorChange('yellow')" name="yellow" style="background-color:yellow;">
+            <input type="button" onclick="colorChange('green')"  name="green"  style="background-color:green;">
+            <input type="button" onclick="colorChange('blue')"   name="blue"   style="background-color:blue;">
+            <input type="button" onclick="colorChange('black')"  name="black"  style="background-color:black;">
+        </div>
+        <span class="toolbar-label" style="margin-left:8px;">COLOR▸</span>
+        <div id="active-color-box"></div>
+    </div>
 
-            // Draw a small line/dot at the received coordinates
-            ctx.lineTo(data.x,data.y);
-            ctx.stroke();
-            ctx.beginPath();// Start a fresh path for the next point
-            ctx.moveTo(data.x,data.y)
-            ctx.strokeStyle=data.penColor;
-        })
-        socket.on('stop-drawing',()=>{
-            ctx.beginPath();
-        })
-        socket.on('join:draw',(info)=>{
-            console.log("info",info);  
-        })
-        socket.emit('join:club',{name:name,email:email,room:roomno})
+    <div class="canvas-wrap">
+        <canvas id="whiteboard" width="800" height="500"></canvas>
+        <div class="scanlines"></div>
+    </div>
 
-        function taar(e){
-            if(e) e.preventDefault();
-            let isDrawing=false;
-            window.addEventListener('mouseup',()=>
-            {
-                if(isDrawing) {
+    <div class="statusbar">
+        ROOM: <span id="status-room">—</span>
+        &nbsp;&nbsp;USER: <span id="status-name">—</span>
+        &nbsp;&nbsp;PEN: <span id="status-pen">BLACK</span>
+    </div>
+
+    <div class="panel-scanlines"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const urlparams = new URLSearchParams(window.location.search);
+    let head = document.getElementById('heading');
+    let roomno = urlparams.get('room');
+    let name = urlparams.get('name');
+    let email = urlparams.get('email');
+    head.innerText = `Welcome to Room ${roomno}`;
+
+    document.getElementById('status-room').innerText = roomno || '—';
+    document.getElementById('status-name').innerText = name || '—';
+
+    let canvas = document.getElementById('whiteboard');
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    let penColor = 'black';
+
+    function colorChange(color) {
+        penColor = color;
+        ctx.strokeStyle = penColor;
+        document.getElementById('active-color-box').style.background = color;
+        document.getElementById('status-pen').innerText = color.toUpperCase();
+    }
+    colorChange('black');
+
+    socket.on('coordinates', (data) => {
+        console.log("data:", data);
+        ctx.lineTo(data.x, data.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(data.x, data.y);
+        ctx.strokeStyle = data.penColor;
+    });
+
+    socket.on('stop-drawing', () => {
+        ctx.beginPath();
+    });
+
+    socket.on('join:draw', (info) => {
+        console.log("info", info);
+    });
+
+    socket.emit('join:club', { name: name, email: email, room: roomno });
+
+    function taar(e) {
+        if (e) e.preventDefault();
+        let isDrawing = false;
+        window.addEventListener('mouseup', () => {
+            if (isDrawing) {
                 isDrawing = false;
                 ctx.beginPath();
                 socket.emit('stop-drawing', { room: roomno });
             }
-            })
-            canvas.addEventListener('mousedown',(e)=>{
-              isDrawing = true;
-            // We must "jump" the pen to the start point immediately
-                const rect = canvas.getBoundingClientRect();
-                ctx.beginPath();
-                ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-                 draw(e);
-            })
-            canvas.addEventListener('mousemove',draw);
-               
-            function draw(e){
-                if(!isDrawing) return ;
-                //Get coordinates relative to the canvas borders
+        });
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            draw(e);
+        });
+        canvas.addEventListener('mousemove', draw);
 
-                const rect=canvas.getBoundingClientRect()
-             // FIX 2: Use e.clientX and e.clientY
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-
-                // Draw on our own screen immediately (for speed)
-                ctx.lineTo(x,y);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(x,y);
-                const payload={name:name,room:roomno,x,y,penColor}
-                socket.emit('coordinates',payload)
-            }
-         }
-         taar();
-     </script>
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            const payload = { name: name, room: roomno, x, y, penColor };
+            socket.emit('coordinates', payload);
+        }
+    }
+    taar();
+</script>
 </body>
 </html>
