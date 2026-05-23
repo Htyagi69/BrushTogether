@@ -1,20 +1,139 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Draw</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        h1 {
+            font-size: 12px;
+            color: #33ff33;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            background: #33ff33;
+            color: #0a0a0a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h1::before { content: "▶"; font-size: 10px; }
+
+        .panel {
+            background: #0f1a0f;
+            border: 4px solid #33ff33;
+            box-shadow: 0 0 0 2px #0a0a0a, 0 0 0 6px #33ff33, inset 0 0 0 2px #33ff33;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+        }
+
+        form {
+            padding: 20px 18px;
+        }
+
+        label {
+            display: block;
+            color: #33ff33;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        label::before { content: "▸ "; }
+
+        input {
+            width: 100%;
+            background: #000d00;
+            border: 2px solid #1a7a1a;
+            border-bottom: 2px solid #33ff33;
+            border-right: 2px solid #33ff33;
+            color: #33ff33;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 10px;
+            outline: none;
+            caret-color: #33ff33;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input:focus {
+            border-color: #33ff33;
+            border-bottom-color: #88ff88;
+            border-right-color: #88ff88;
+            background: #001200;
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+        button {
+            display: block;
+            margin-left: auto;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            background: #33ff33;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+        }
+        button:hover { background: #88ff88; }
+        button:active { transform: translate(2px, 2px); }
+
+        .scanlines {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px, transparent 3px,
+                rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+            );
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .blink {
+            display: inline-block;
+            width: 8px; height: 10px;
+            background: #0a0a0a;
+            animation: blink .7s steps(1) infinite;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Message</h1>
-     <form onsubmit="info(event)">
-         <label>name:</label>
-         <input id="name" type="text">
-         <label>email:</label>
-        <input id="email" type="text">
-        <label>Room No: </label>
-        <input type="number" id="roomno">
-        <button>send</button>
-     </form>
+    <div class="panel">
+        <h1>Message<span class="blink"></span></h1>
+        <form onsubmit="info(event)">
+            <label>name:</label>
+            <input id="name" type="text" autocomplete="off" spellcheck="false">
+            <label>email:</label>
+            <input id="email" type="text" autocomplete="off" spellcheck="false">
+            <label>Room No: </label>
+            <input type="number" id="roomno">
+            <button>send</button>
+        </form>
+        <div class="scanlines"></div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
-     <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
